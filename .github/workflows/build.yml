@@ -1,0 +1,44 @@
+name: Build LanStudioSuite
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore & Build LanMasterStudio
+        run: |
+          dotnet restore LanStudioSuite/LanMasterStudio/LanMasterStudio.csproj
+          dotnet build LanStudioSuite/LanMasterStudio/LanMasterStudio.csproj -c Release
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Android APK
+        working-directory: LanStudioSuite/LanSatelliteAndroid
+        run: |
+          gradle assembleDebug --stacktrace
+          
